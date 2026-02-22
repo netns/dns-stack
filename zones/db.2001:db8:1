@@ -1,0 +1,18 @@
+$ORIGIN 0.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa
+$TTL 86400
+
+@   IN      SOA     ns1.example.com. noc.example.com. (
+        2003080800 ; serial number
+        12h        ; refresh
+        15m        ; update retry
+        4d         ; expiry
+        2h         ; minimum
+)
+
+@            IN      NS      ns1.example.com.
+@            IN      NS      ns2.example.net.
+
+2            IN      PTR     ns1.example.com.   ; 2001:db8:1::2
+4            IN      PTR     mail.example.com.  ; 2001:db8:1::4
+6            IN      PTR     joe.example.com.   ; 2001:db8:1::6
+7            IN      PTR     www.example.com.   ; 2001:db8:1::7
