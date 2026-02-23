@@ -1,0 +1,73 @@
+// =====================================================================
+// Global BIND options
+//
+// This file sets global parameters for the DNS server, including
+// directories, access control, recursion, DNSSEC validation, and
+// forwarders.
+// =====================================================================
+
+// Define ACL (Access Control Lists) for allowed clients
+acl "name_servers" {
+    172.16.0.5;    // Secondary server 1
+    172.16.0.6;    // Secondary server 2
+};
+
+acl "trusted_clients" {
+    127.0.0.0/8;
+    192.168.0.0/24;
+    10.0.0.0/24;
+};
+
+// TLS configuration for secure forwarding to Quad9
+tls "quad9-tls" {
+    remote-hostname "dns.quad9.net"; // Must match the TLS certificate
+};
+
+options {
+    directory "/var/cache/bind";
+
+    // Hide BIND version for security
+    version "not available";
+
+    listen-on { any; };
+    listen-on-v6 { any; };
+
+    // Allow queries only from trusted clients
+    allow-query { trusted_clients; };
+    allow-query-cache { trusted_clients; };
+
+    // Allow recursive queries only from trusted clients
+    allow-recursion { trusted_clients; };
+    recursion yes;
+
+    // AXFR/zone transfers globally are controlled per-zone
+    // (can be left empty or removed)
+    allow-transfer { none; };
+
+    // Do not allow dynamic updates
+    allow-update { none; };
+
+    // Enable empty zones (RFC compliance)
+    empty-zones-enable yes;
+
+    // Minimal responses to reduce bandwidth
+    minimal-responses yes;
+
+    // Rate limiting to prevent abuse
+    rate-limit { responses-per-second 10; };
+
+    // DNSSEC validation enabled
+    dnssec-enable yes;
+    dnssec-validation auto;
+
+    // Auth-nxdomain no to conform to RFC1035
+    auth-nxdomain no;
+
+    // Forwarders configuration (DNS-over-TLS)
+    forwarders port 853 {
+        9.9.9.9 tls quad9-tls;
+        149.112.112.112 tls quad9-tls;
+        2620:fe::fe tls quad9-tls;
+        2620:fe::9 tls quad9-tls;
+    };
+};

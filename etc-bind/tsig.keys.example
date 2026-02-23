@@ -1,0 +1,35 @@
+// =====================================================================
+// TSIG keys configuration
+//
+// This file defines TSIG keys used to authenticate zone transfers
+// (AXFR/IXFR) and notifications between your master and secondary
+// DNS servers.
+//
+// TSIG (Transaction SIGnature) ensures integrity and authentication
+// for DNS operations.
+//
+// Each key is unique per server to allow revocation without affecting
+// other servers.
+// =====================================================================
+
+key "ns2-key" {
+    algorithm hmac-sha512;
+    secret "BASE64_NS2";
+};
+
+key "ns3-key" {
+    algorithm hmac-sha512;
+    secret "BASE64_NS3";
+};
+
+// Associate keys with the corresponding server IPs
+// This allows BIND to automatically use the correct key for
+// AXFR and notify operations without specifying it per zone
+
+server 172.16.0.5 {
+    keys { ns2-key; };
+}
+
+server 172.16.0.6 {
+    keys { ns3-key; };
+}

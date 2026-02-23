@@ -1,0 +1,68 @@
+// =====================================================================
+// Local zone definitions
+//
+// This file defines the zones for which this server is authoritative
+// (master zones) and their security, notifications, and transfer settings.
+// =====================================================================
+
+zone "example.com" {
+    type master;
+    file "/etc/bind/zones/example.com.zone";
+    notify yes;
+
+    // Only allow transfers to authorized TSIG keys
+    allow-transfer {
+        key ns2-key;
+        key ns3-key;
+    };
+
+    // Also notify these secondary servers
+    also-notify {
+        172.16.0.5;
+        172.16.0.6;
+    };
+};
+
+zone "254.168.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/192.168.254.rev.zone";
+    notify yes;
+
+    allow-transfer {
+        key ns2-key;
+        key ns3-key;
+    };
+
+    also-notify {
+        172.16.0.5;
+        172.16.0.6;
+    };
+};
+
+// -----------------------------
+// Configuration for secondary servers
+// -----------------------------
+// Each secondary server needs its corresponding TSIG key and
+// server block. Uncomment and adapt the following if you run
+// a slave on this host.
+//
+// key "ns2-key" {
+//     algorithm hmac-sha512;
+//     secret "BASE64_NS2";
+// };
+// 
+// server 172.16.0.4 {
+//     keys { ns2-key; };
+// };
+// 
+// zone "example.com" {
+//     type slave;
+//     file "/etc/bind/zones/example.com.zone";
+//     masters { 172.16.0.4; };
+// };
+//
+// zone "254.168.192.in-addr.arpa" {
+//     type slave;
+//     file "/etc/bind/zones/192.168.254.rev.zone";
+//     masters { 172.16.0.4; };
+// };

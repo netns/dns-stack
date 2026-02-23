@@ -1,0 +1,69 @@
+// =====================================================================
+// BIND Local Configuration File (.local)
+//
+// This file defines local DNS views and zones.
+//
+// - root view      : Maintains a slave copy of the root zone for authoritative
+//                    resolution of root-level delegations.
+// - recursive view : Provides caching and recursive queries for trusted clients.
+// =====================================================================
+
+view root {
+    match-clients { trusted_clients; };
+
+    // The root zone (".") is defined as a slave zone
+    // BIND will synchronize this zone from the official root servers.
+    zone "." {
+        type slave;
+        file "rootzone.db";
+        notify no;
+
+        masters {
+            198.41.0.4;          # A.ROOT-SERVERS.NET.
+            2001:503:ba3e::2:30; # A.ROOT-SERVERS.NET.
+            170.247.170.2;       # B.ROOT-SERVERS.NET.
+            2801:1b8:10::b;      # B.ROOT-SERVERS.NET.
+            192.33.4.12;         # C.ROOT-SERVERS.NET.
+            2001:500:2::c;       # C.ROOT-SERVERS.NET.
+            199.7.91.13;         # D.ROOT-SERVERS.NET.
+            2001:500:2d::d;      # D.ROOT-SERVERS.NET.
+            192.203.230.10;      # E.ROOT-SERVERS.NET.
+            2001:500:a8::e;      # E.ROOT-SERVERS.NET.
+            192.5.5.241;         # F.ROOT-SERVERS.NET.
+            2001:500:2f::f;      # F.ROOT-SERVERS.NET.
+            192.112.36.4;        # G.ROOT-SERVERS.NET.
+            2001:500:12::d0d;    # G.ROOT-SERVERS.NET.
+            198.97.190.53;       # H.ROOT-SERVERS.NET.
+            2001:500:1::53;      # H.ROOT-SERVERS.NET.
+            192.36.148.17;       # I.ROOT-SERVERS.NET.
+            2001:7fe::53;        # I.ROOT-SERVERS.NET.
+            192.58.128.30;       # J.ROOT-SERVERS.NET.
+            2001:503:c27::2:30;  # J.ROOT-SERVERS.NET.
+            193.0.14.129;        # K.ROOT-SERVERS.NET.
+            2001:7fd::1;         # K.ROOT-SERVERS.NET.
+            199.7.83.42;         # L.ROOT-SERVERS.NET.
+            2001:500:9f::42;     # L.ROOT-SERVERS.NET.
+            202.12.27.33;        # M.ROOT-SERVERS.NET.
+            2001:dc3::35;        # M.ROOT-SERVERS.NET.
+        };
+    };
+}
+
+// =====================================================================
+// RECURSIVE VIEW
+// Provides caching and recursive resolution for trusted clients
+// =====================================================================
+view recursive {
+    dnssec-enable yes;
+    dnssec-validation auto;
+
+    allow-recursion { trusted_clients; };
+    recursion yes;
+
+    // Use a static-stub zone for the root to ensure recursion starts properly
+    // pointing to the local root view/slave copy
+    zone "." {
+        type static-stub
+        server-addresses { 127.0.0.1; };
+    };
+};
